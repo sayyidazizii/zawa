@@ -8,7 +8,7 @@ const STORAGE_KEY = 'zawa_sessions_v1';
 const BASEURL_KEY = 'zawa_base_url_v1';
 const AUTH_KEY = 'zawa_auth_v1';
 const AUTH_USER = 'admin';
-const AUTH_PASS = 'zawa123';
+const AUTH_PASS = '0k1y{?[wd(3J';
 
 /* ---------------------------------------------------------------------
    State
