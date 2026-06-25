@@ -678,3 +678,146 @@ button, input, select, textarea {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
+
+/* Tombol toggle hanya muncul di mobile */
+.sidebar-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-dim);
+  width: 34px;
+  height: 34px;
+  font-size: 18px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+/* Konten sidebar selalu tampil di desktop */
+.sidebar-inner { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+
+/* ===== Mobile responsive ===== */
+@media (max-width: 768px) {
+  .sidebar-toggle { display: flex; }
+  .app {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    height: auto;
+    min-height: 100vh;
+  }
+
+  /* Sidebar jadi collapsible di atas */
+  .sidebar {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    padding: 14px 16px;
+    overflow: visible;
+  }
+
+  .brand {
+    margin-bottom: 0;
+    justify-content: space-between;
+  }
+
+  /* Tombol toggle sidebar */
+  .sidebar-toggle { display: flex; }
+
+  .sidebar-inner {
+    display: none;
+    flex-direction: column;
+    margin-top: 14px;
+    gap: 0;
+  }
+  .sidebar.open .sidebar-inner {
+    display: flex;
+  }
+
+  .btn-new-session { margin-top: 14px; }
+
+  .session-list {
+    max-height: 200px;
+  }
+
+  .main {
+    overflow: visible;
+  }
+
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 14px 16px;
+    gap: 12px;
+  }
+
+  .topbar-actions {
+    width: 100%;
+  }
+
+  .base-url-wrap {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    gap: 4px;
+  }
+  .base-url-wrap input {
+    width: 100%;
+  }
+
+  .tabs {
+    padding: 0 16px;
+  }
+
+  .tab {
+    padding: 10px 12px;
+    font-size: 12.5px;
+  }
+
+  .panels {
+    padding: 16px 16px 160px;
+  }
+
+  .panel-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .action-row {
+    flex-wrap: wrap;
+  }
+  .action-row .btn-secondary,
+  .action-row .btn-danger {
+    flex: 1;
+    text-align: center;
+  }
+
+  .log-drawer {
+    left: 0;
+  }
+
+  .modal {
+    width: calc(100% - 32px);
+    margin: 0 16px;
+  }
+
+  .toast-container {
+    left: 12px;
+    right: 12px;
+    top: 12px;
+  }
+  .toast {
+    min-width: unset;
+    max-width: unset;
+    width: 100%;
+  }
+
+  .group-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .group-item-action {
+    width: 100%;
+    text-align: center;
+  }
+}

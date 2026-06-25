@@ -13,35 +13,38 @@
 <div class="app">
 
   <!-- SIDEBAR -->
-  <aside class="sidebar">
+  <aside class="sidebar" id="sidebar">
     <div class="brand">
       <div class="brand-mark">Z</div>
       <div class="brand-text">
         <span class="brand-name">ZAWA</span>
         <span class="brand-sub">api console</span>
       </div>
+      <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">☰</button>
     </div>
 
-    <button class="btn-new-session" id="btnNewSession">
-      <span class="plus">+</span> Session baru
-    </button>
+    <div class="sidebar-inner" id="sidebarInner">
+      <button class="btn-new-session" id="btnNewSession">
+        <span class="plus">+</span> Session baru
+      </button>
 
-    <div class="session-list-header">
-      <span>SESSIONS</span>
-      <span id="sessionCount" class="count-pill">0</span>
-    </div>
-
-    <div class="session-list" id="sessionList">
-      <!-- session items injected here -->
-      <div class="empty-state" id="sessionEmpty">
-        Belum ada session.<br>Klik "Session baru" buat mulai.
+      <div class="session-list-header">
+        <span>SESSIONS</span>
+        <span id="sessionCount" class="count-pill">0</span>
       </div>
-    </div>
 
-    <div class="sidebar-footer">
-      <button class="btn-ghost" id="btnExport">⭳ Export</button>
-      <button class="btn-ghost" id="btnImport">⭱ Import</button>
-      <input type="file" id="importFile" accept="application/json" hidden>
+      <div class="session-list" id="sessionList">
+        <!-- session items injected here -->
+        <div class="empty-state" id="sessionEmpty">
+          Belum ada session.<br>Klik "Session baru" buat mulai.
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        <button class="btn-ghost" id="btnExport">⭳ Export</button>
+        <button class="btn-ghost" id="btnImport">⭱ Import</button>
+        <input type="file" id="importFile" accept="application/json" hidden>
+      </div>
     </div>
   </aside>
 
@@ -366,5 +369,17 @@
 </div>
 
 <script src="app.js"></script>
+<script>
+  (function() {
+    var btn = document.getElementById('sidebarToggle');
+    var sidebar = document.getElementById('sidebar');
+    if (btn) {
+      btn.addEventListener('click', function() {
+        var open = sidebar.classList.toggle('open');
+        btn.textContent = open ? '✕' : '☰';
+      });
+    }
+  })();
+</script>
 </body>
 </html>
