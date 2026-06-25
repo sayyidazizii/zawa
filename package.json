@@ -1,0 +1,6 @@
+{
+  "name": "zawa-cors-proxy",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CORS proxy buat ZAWA API, biar bisa dipanggil langsung dari browser/dashboard HTML"
+}

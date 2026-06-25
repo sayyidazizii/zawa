@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZAWA Console — WhatsApp API Tester</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">Z</div>
+      <div class="brand-text">
+        <span class="brand-name">ZAWA</span>
+        <span class="brand-sub">api console</span>
+      </div>
+    </div>
+
+    <button class="btn-new-session" id="btnNewSession">
+      <span class="plus">+</span> Session baru
+    </button>
+
+    <div class="session-list-header">
+      <span>SESSIONS</span>
+      <span id="sessionCount" class="count-pill">0</span>
+    </div>
+
+    <div class="session-list" id="sessionList">
+      <!-- session items injected here -->
+      <div class="empty-state" id="sessionEmpty">
+        Belum ada session.<br>Klik "Session baru" buat mulai.
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <button class="btn-ghost" id="btnExport">⭳ Export</button>
+      <button class="btn-ghost" id="btnImport">⭱ Import</button>
+      <input type="file" id="importFile" accept="application/json" hidden>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <header class="topbar">
+      <div class="active-session-info" id="activeSessionInfo">
+        <span class="dot dot-off" id="activeDot"></span>
+        <div class="asi-text">
+          <span class="asi-name" id="activeSessionName">Tidak ada session aktif</span>
+          <span class="asi-id" id="activeSessionId">—</span>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <label class="base-url-wrap">
+          <span>Base URL</span>
+          <input type="text" id="baseUrlInput" value="https://api-zawa.azickri.com" spellcheck="false" title="Isi dengan URL ZAWA langsung, atau URL proxy kamu + /api/proxy kalau kena CORS">
+        </label>
+      </div>
+    </header>
+
+    <nav class="tabs" id="tabs">
+      <button class="tab active" data-tab="session">Session</button>
+      <button class="tab" data-tab="message">Kirim Pesan</button>
+      <button class="tab" data-tab="status">Status</button>
+      <button class="tab" data-tab="typing">Typing</button>
+      <button class="tab" data-tab="group">Group</button>
+    </nav>
+
+    <section class="panels">
+
+      <!-- SESSION PANEL -->
+      <div class="panel active" id="panel-session">
+        <div class="panel-grid">
+
+          <div class="card">
+            <h3>QR Code & Status</h3>
+            <p class="hint">Ambil data session ini buat lihat QR code dan status koneksi WhatsApp-nya.</p>
+            <button class="btn-primary" id="btnFetchSession">Ambil Session</button>
+
+            <div class="qr-box" id="qrBox">
+              <span class="qr-placeholder">Belum ada QR. Klik "Ambil Session".</span>
+            </div>
+
+            <div class="kv-grid" id="sessionInfoGrid"></div>
+          </div>
+
+          <div class="card">
+            <h3>Kelola Session</h3>
+            <p class="hint">Reset kalau QR ngga muncul lagi. Hapus buat hapus total data session di server.</p>
+
+            <div class="action-row">
+              <button class="btn-secondary" id="btnResetSession">↻ Reset Session</button>
+              <button class="btn-danger" id="btnDeleteSession">✕ Hapus Session</button>
+            </div>
+
+            <div class="divider"></div>
+
+            <h4>Auto-refresh QR</h4>
+            <p class="hint">Polling otomatis tiap 3 detik sampai status connected.</p>
+            <label class="toggle-row">
+              <input type="checkbox" id="toggleAutoRefresh">
+              <span>Aktifkan auto-refresh</span>
+            </label>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- MESSAGE PANEL -->
+      <div class="panel" id="panel-message">
+        <div class="panel-grid">
+          <div class="card">
+            <h3>Kirim Pesan</h3>
+            <p class="hint">Kirim ke kontak (nomor HP internasional) atau ke grup (group ID).</p>
+
+            <div class="field-row">
+              <label class="radio-pill">
+                <input type="radio" name="msgTarget" value="phone" checked> Nomor HP
+              </label>
+              <label class="radio-pill">
+                <input type="radio" name="msgTarget" value="group"> Group ID
+              </label>
+            </div>
+
+            <div class="field">
+              <label for="msgPhone">Nomor HP (format internasional)</label>
+              <input type="text" id="msgPhone" placeholder="6281234567890">
+            </div>
+            <div class="field hidden" id="msgGroupField">
+              <label for="msgGroup">Group ID</label>
+              <input type="text" id="msgGroup" placeholder="120363xxxxxxxxxx@g.us">
+            </div>
+
+            <div class="field">
+              <label for="msgType">Tipe Pesan</label>
+              <select id="msgType">
+                <option value="text">Text</option>
+                <option value="image">Image</option>
+                <option value="video">Video</option>
+                <option value="audio">Audio</option>
+                <option value="document">Document</option>
+                <option value="location">Location</option>
+                <option value="contact">Contact</option>
+              </select>
+            </div>
+
+            <!-- TEXT -->
+            <div class="field msg-type-fields" data-type="text,image,video,document">
+              <label for="msgText">Teks / Caption</label>
+              <textarea id="msgText" rows="3" placeholder="Tulis pesan di sini..."></textarea>
+            </div>
+
+            <!-- IMAGE -->
+            <div class="field msg-type-fields hidden" data-type="image">
+              <label for="msgImageUrl">URL Gambar</label>
+              <input type="text" id="msgImageUrl" placeholder="https://contoh.com/gambar.jpg">
+              <label for="msgImageMime">Mimetype</label>
+              <input type="text" id="msgImageMime" placeholder="image/jpeg">
+            </div>
+
+            <!-- VIDEO -->
+            <div class="field msg-type-fields hidden" data-type="video">
+              <label for="msgVideoUrl">URL Video</label>
+              <input type="text" id="msgVideoUrl" placeholder="https://contoh.com/video.mp4">
+              <label for="msgVideoMime">Mimetype</label>
+              <input type="text" id="msgVideoMime" placeholder="video/mp4">
+              <label for="msgVideoDuration">Durasi (detik)</label>
+              <input type="number" id="msgVideoDuration" placeholder="30">
+            </div>
+
+            <!-- AUDIO -->
+            <div class="field msg-type-fields hidden" data-type="audio">
+              <label for="msgAudioUrl">URL Audio</label>
+              <input type="text" id="msgAudioUrl" placeholder="https://contoh.com/audio.mp3">
+              <label for="msgAudioMime">Mimetype</label>
+              <input type="text" id="msgAudioMime" placeholder="audio/mpeg">
+              <label for="msgAudioDuration">Durasi (detik)</label>
+              <input type="number" id="msgAudioDuration" placeholder="15">
+            </div>
+
+            <!-- DOCUMENT -->
+            <div class="field msg-type-fields hidden" data-type="document">
+              <label for="msgDocUrl">URL Dokumen</label>
+              <input type="text" id="msgDocUrl" placeholder="https://contoh.com/file.pdf">
+              <label for="msgDocName">Nama File</label>
+              <input type="text" id="msgDocName" placeholder="laporan.pdf">
+              <label for="msgDocMime">Mimetype</label>
+              <input type="text" id="msgDocMime" placeholder="application/pdf">
+              <label for="msgDocSize">Ukuran (bytes)</label>
+              <input type="number" id="msgDocSize" placeholder="102400">
+            </div>
+
+            <!-- LOCATION -->
+            <div class="field msg-type-fields hidden" data-type="location">
+              <label for="msgLocName">Nama Tempat</label>
+              <input type="text" id="msgLocName" placeholder="Monas">
+              <label for="msgLocAddress">Alamat</label>
+              <input type="text" id="msgLocAddress" placeholder="Jakarta Pusat, DKI Jakarta">
+              <label for="msgLocLat">Latitude</label>
+              <input type="number" step="any" id="msgLocLat" placeholder="-6.1754">
+              <label for="msgLocLng">Longitude</label>
+              <input type="number" step="any" id="msgLocLng" placeholder="106.8272">
+            </div>
+
+            <!-- CONTACT -->
+            <div class="field msg-type-fields hidden" data-type="contact">
+              <label for="msgContactName">Nama Kontak</label>
+              <input type="text" id="msgContactName" placeholder="Budi Santoso">
+              <label for="msgContactPhone">Nomor Kontak</label>
+              <input type="text" id="msgContactPhone" placeholder="6281234567890">
+            </div>
+
+            <button class="btn-primary" id="btnSendMessage">Kirim Pesan</button>
+          </div>
+
+          <div class="card">
+            <h3>Preview Payload</h3>
+            <p class="hint">Body JSON yang bakal dikirim ke <code>/message</code>.</p>
+            <pre class="code-preview" id="msgPayloadPreview">{}</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATUS PANEL -->
+      <div class="panel" id="panel-status">
+        <div class="panel-grid">
+          <div class="card">
+            <h3>Kirim Status WhatsApp</h3>
+            <p class="hint">Cuma support text, image, sama video.</p>
+
+            <div class="field">
+              <label for="statusType">Tipe Status</label>
+              <select id="statusType">
+                <option value="text">Text</option>
+                <option value="image">Image</option>
+                <option value="video">Video</option>
+              </select>
+            </div>
+
+            <div class="field status-type-fields" data-type="text,image,video">
+              <label for="statusText">Teks / Caption</label>
+              <textarea id="statusText" rows="3" placeholder="Tulis status di sini..."></textarea>
+            </div>
+
+            <div class="field status-type-fields hidden" data-type="image">
+              <label for="statusImageUrl">URL Gambar</label>
+              <input type="text" id="statusImageUrl" placeholder="https://contoh.com/gambar.jpg">
+              <label for="statusImageMime">Mimetype</label>
+              <input type="text" id="statusImageMime" placeholder="image/jpeg">
+            </div>
+
+            <div class="field status-type-fields hidden" data-type="video">
+              <label for="statusVideoUrl">URL Video</label>
+              <input type="text" id="statusVideoUrl" placeholder="https://contoh.com/video.mp4">
+              <label for="statusVideoMime">Mimetype</label>
+              <input type="text" id="statusVideoMime" placeholder="video/mp4">
+              <label for="statusVideoDuration">Durasi (detik)</label>
+              <input type="number" id="statusVideoDuration" placeholder="20">
+            </div>
+
+            <button class="btn-primary" id="btnSendStatus">Kirim Status</button>
+          </div>
+
+          <div class="card">
+            <h3>Preview Payload</h3>
+            <p class="hint">Body JSON yang bakal dikirim ke <code>/status</code>.</p>
+            <pre class="code-preview" id="statusPayloadPreview">{}</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- TYPING PANEL -->
+      <div class="panel" id="panel-typing">
+        <div class="panel-grid">
+          <div class="card">
+            <h3>Kirim Typing Presence</h3>
+            <p class="hint">Simulasi "sedang mengetik..." atau "sedang merekam audio...".</p>
+
+            <div class="field-row">
+              <label class="radio-pill">
+                <input type="radio" name="typingTarget" value="phone" checked> Nomor HP
+              </label>
+              <label class="radio-pill">
+                <input type="radio" name="typingTarget" value="group"> Group ID
+              </label>
+            </div>
+
+            <div class="field">
+              <label for="typingPhone">Nomor HP</label>
+              <input type="text" id="typingPhone" placeholder="6281234567890">
+            </div>
+            <div class="field hidden" id="typingGroupField">
+              <label for="typingGroup">Group ID</label>
+              <input type="text" id="typingGroup" placeholder="120363xxxxxxxxxx@g.us">
+            </div>
+
+            <div class="field">
+              <label for="typingType">Tipe</label>
+              <select id="typingType">
+                <option value="text">Mengetik (text)</option>
+                <option value="audio">Merekam audio</option>
+              </select>
+            </div>
+
+            <button class="btn-primary" id="btnSendTyping">Kirim Typing</button>
+          </div>
+
+          <div class="card">
+            <h3>Preview Payload</h3>
+            <pre class="code-preview" id="typingPayloadPreview">{}</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- GROUP PANEL -->
+      <div class="panel" id="panel-group">
+        <div class="panel-grid panel-grid-single">
+          <div class="card">
+            <div class="card-header-row">
+              <h3>Daftar Grup</h3>
+              <button class="btn-secondary" id="btnFetchGroups">↻ Ambil Group</button>
+            </div>
+            <p class="hint">Grup WhatsApp yang diikuti akun di session aktif. Klik grup buat copy ID-nya, atau langsung kirim pesan ke grup itu.</p>
+            <div class="group-list" id="groupList">
+              <div class="empty-state">Belum ada data. Klik "Ambil Group".</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+</div>
+
+<!-- LOG DRAWER -->
+<div class="log-drawer" id="logDrawer">
+  <div class="log-drawer-header" id="logDrawerToggle">
+    <span class="log-title">⌁ Request Log</span>
+    <span class="log-count" id="logCount">0</span>
+    <span class="log-toggle-icon" id="logToggleIcon">▾</span>
+    <button class="btn-ghost-small" id="btnClearLog" title="Bersihkan log">Bersihkan</button>
+  </div>
+  <div class="log-drawer-body" id="logDrawerBody"></div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- NEW SESSION CONFIRM MODAL -->
+<div class="modal-overlay hidden" id="modalOverlay">
+  <div class="modal">
+    <h3 id="modalTitle">Konfirmasi</h3>
+    <p id="modalBody">Apa kamu yakin?</p>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="modalCancel">Batal</button>
+      <button class="btn-danger" id="modalConfirm">Ya, lanjutkan</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
