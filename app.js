@@ -6,6 +6,9 @@
 
 const STORAGE_KEY = 'zawa_sessions_v1';
 const BASEURL_KEY = 'zawa_base_url_v1';
+const AUTH_KEY = 'zawa_auth_v1';
+const AUTH_USER = 'admin';
+const AUTH_PASS = 'zawa123';
 
 /* ---------------------------------------------------------------------
    State
@@ -53,6 +56,60 @@ function saveState() {
 function getBaseUrl() {
   const v = document.getElementById('baseUrlInput').value.trim();
   return v.replace(/\/+$/, '');
+}
+
+/* ---------------------------------------------------------------------
+   Auth helpers
+   --------------------------------------------------------------------- */
+function isAuthenticated() {
+  return localStorage.getItem(AUTH_KEY) === 'true';
+}
+
+function setAuthenticated(value) {
+  if (value) {
+    localStorage.setItem(AUTH_KEY, 'true');
+  } else {
+    localStorage.removeItem(AUTH_KEY);
+  }
+  renderAuthGate();
+}
+
+function renderAuthGate() {
+  const authScreen = document.getElementById('authScreen');
+  const appShell = document.getElementById('appShell');
+  const logDrawer = document.getElementById('logDrawer');
+  const authed = isAuthenticated();
+
+  authScreen.classList.toggle('hidden', authed);
+  appShell.classList.toggle('hidden', !authed);
+  logDrawer.classList.toggle('hidden', !authed);
+
+  if (!authed) {
+    stopAutoRefresh();
+    setTimeout(() => document.getElementById('loginUsername')?.focus(), 0);
+  }
+}
+
+function handleLogin(e) {
+  e.preventDefault();
+  const username = document.getElementById('loginUsername').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const loginError = document.getElementById('loginError');
+
+  if (username === AUTH_USER && password === AUTH_PASS) {
+    loginError.classList.add('hidden');
+    document.getElementById('loginPassword').value = '';
+    setAuthenticated(true);
+    showToast('Berhasil masuk ke dashboard', 'success');
+    return;
+  }
+
+  loginError.classList.remove('hidden');
+}
+
+function logout() {
+  setAuthenticated(false);
+  showToast('Kamu sudah logout', 'info');
 }
 
 /* ---------------------------------------------------------------------
@@ -988,6 +1045,8 @@ document.getElementById('importFile').addEventListener('change', (e) => {
 document.getElementById('baseUrlInput').addEventListener('change', (e) => {
   localStorage.setItem(BASEURL_KEY, e.target.value.trim());
 });
+document.getElementById('loginForm').addEventListener('submit', handleLogin);
+document.getElementById('btnLogout').addEventListener('click', logout);
 
 /* =====================================================================
    Init
@@ -995,6 +1054,7 @@ document.getElementById('baseUrlInput').addEventListener('change', (e) => {
 
 function init() {
   loadState();
+  renderAuthGate();
   renderSessionList();
   renderActiveSessionTopbar();
   renderSessionPanel();

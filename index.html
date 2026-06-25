@@ -10,7 +10,33 @@
 </head>
 <body>
 
-<div class="app">
+<section class="auth-screen" id="authScreen">
+  <form class="auth-card" id="loginForm" autocomplete="on">
+    <div class="auth-brand">
+      <div class="brand-mark">Z</div>
+      <div>
+        <h1>ZAWA Console</h1>
+        <p>Masuk dulu sebelum membuka dashboard.</p>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="loginUsername">Username</label>
+      <input type="text" id="loginUsername" autocomplete="username" placeholder="admin" required>
+    </div>
+
+    <div class="field">
+      <label for="loginPassword">Password</label>
+      <input type="password" id="loginPassword" autocomplete="current-password" placeholder="Masukkan password" required>
+    </div>
+
+    <div class="auth-error hidden" id="loginError">Username atau password salah.</div>
+
+    <button class="btn-primary auth-submit" type="submit">Masuk Dashboard</button>
+  </form>
+</section>
+
+<div class="app hidden" id="appShell">
 
   <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
@@ -64,6 +90,7 @@
           <span>Base URL</span>
           <input type="text" id="baseUrlInput" value="https://api-zawa.azickri.com" spellcheck="false" title="Isi dengan URL ZAWA langsung, atau URL proxy kamu + /api/proxy kalau kena CORS">
         </label>
+        <button class="btn-ghost-small btn-logout" id="btnLogout" type="button">Logout</button>
       </div>
     </header>
 
@@ -343,7 +370,7 @@
 </div>
 
 <!-- LOG DRAWER -->
-<div class="log-drawer" id="logDrawer">
+<div class="log-drawer hidden" id="logDrawer">
   <div class="log-drawer-header" id="logDrawerToggle">
     <span class="log-title">⌁ Request Log</span>
     <span class="log-count" id="logCount">0</span>
